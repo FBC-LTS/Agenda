@@ -1,4 +1,5 @@
 import sqlite3
+from sqlite3 import Error
 
 
 class Data:
@@ -13,28 +14,44 @@ class Data:
                          'email text NOT NULL'
                          ');')
 
-    def getContatos(self):
-        return self.cur.execute('SELECT * FROM tb_contato').fetchall()
+    def getAll(self):
+        try:
+            return self.cur.execute('SELECT * FROM tb_contato').fetchall()
+        except Error as ex:
+            print(ex)
 
-    def getContato(self, idContato):
-        return self.cur.execute(f'SELECT * FROM tb_contato WHERE id = {idContato}').fetchone()
+    def getContato(self, elemento):
+        try:
+            return self.cur.execute(f'SELECT * FROM tb_contato WHERE id = {elemento}').fetchone()
+        except Error as ex:
+            print(ex)
 
     def salvarContato(self, contato):
-        self.cur.execute("INSERT INTO tb_contato(num, nome, email) VALUES(?, ?, ?)", contato)
-        self.con.commit()
-        print('salvo')
+        try:
+            self.cur.execute("INSERT INTO tb_contato(num, nome, email) VALUES(?, ?, ?)", contato)
+            self.con.commit()
+            print('salvo')
+        except Error as ex:
+            print(ex)
 
-    def salvarContatos(self, contatos):
-        self.cur.executemany("INSERT INTO tb_contato(num, nome, email) VALUES(?, ?, ?)", contatos)
-        self.con.commit()
-        print('salvo')
+    def apagar(self, elemento):
+        try:
+            self.cur.execute(f"DELETE FROM tb_contato WHERE id = {elemento}")
+            self.con.commit()
+            print('apagado')
+        except Error as ex:
+            print(ex)
 
-    def apagarIndex(self, idC):
-        self.cur.execute(f"DELETE FROM tb_contato WHERE id = {str(idC)}")
-        self.con.commit()
+    def alterarContato(self, coluna: str, valor: str, elemento: int):
+        try:
+            print(f'{coluna} {valor}')
+            self.cur.execute(f"UPDATE tb_contato SET {coluna}= '{valor}' WHERE id = {elemento}")
+            self.con.commit()
+            print(f'alterado')
+        except Error as ex:
+            print(ex)
 
     def saveExit(self):
         self.con.commit()
         self.con.close()
         print('saindo...')
-
